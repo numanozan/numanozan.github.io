@@ -168,7 +168,11 @@
        spent reading it in full light. */
     to = limit;
     if (heading) {
-      var arrives = heading.getBoundingClientRect().top + window.pageYOffset - vh * 0.80;
+      /* --finish says how much earlier than the contact block's arrival
+         the dissolve settles, in screenfuls; 0 runs it to the last pixel. */
+      var early = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--finish'));
+      if (isNaN(early)) { early = 0.62; }
+      var arrives = heading.getBoundingClientRect().top + window.pageYOffset - vh * early;
       to = Math.min(limit, Math.max(arrives, limit * 0.45));
     }
   }
@@ -188,7 +192,9 @@
       /* the spot arrives a little ahead of the field leaving, so the
          centre is already lit while the corners are still low */
       surface.style.setProperty('--field', String(1 - eased));
-      surface.style.setProperty('--spot', String(Math.min(1, eased * 1.3)));
+      var rush = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--rush'));
+      if (isNaN(rush)) { rush = 1.3; }
+      surface.style.setProperty('--spot', String(Math.min(1, eased * rush)));
       surface.style.setProperty('--open', String(eased));
     }
     if (cue) {

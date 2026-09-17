@@ -12,9 +12,13 @@
   --beam-y: 45%;           /* exactly where the contact block comes to rest */
   --beam-w: 46%;           /* a wide beam, roughly half the screen */
   --beam-h: 50%;
+  /* shape and size of the beam; a phone swaps this for a real circle */
+  --beam: calc(var(--beam-w) * (0.55 + 0.45 * var(--open, 1)))
+          calc(var(--beam-h) * (0.55 + 0.45 * var(--open, 1)));
   --dusk: 0.34;            /* how far the far side falls away */
   --lid: 0.38;             /* a band along the top, where copy leaves */
   --finish: 0.62;          /* how early the dissolve settles, in screens */
+  --rush: 1.3;             /* how far ahead of the dark the light arrives */
   --paper-spot: #f6f5f3;   /* where the light falls */
   --paper: #d8d8d6;
   --on-ink: #f4f4f3;
@@ -115,9 +119,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
      bottom down a little. The beam widens as it brightens, so it reads
      as a spot opening onto the contact copy. */
   background:
-    radial-gradient(calc(var(--beam-w) * (0.55 + 0.45 * var(--open, 1)))
-                    calc(var(--beam-h) * (0.55 + 0.45 * var(--open, 1)))
-                    at var(--beam-x) var(--beam-y),
+    radial-gradient(var(--beam) at var(--beam-x) var(--beam-y),
       var(--paper-spot) 0%,
       rgba(246, 245, 243, 0.88) 24%,
       rgba(246, 245, 243, 0.60) 48%,
@@ -408,18 +410,18 @@ main:focus { outline: none; }
   :root {
     /* A shorter quiet stretch, so a swipe carries more of the dissolve
        and the change is felt rather than guessed at. */
-    --gap: clamp(220px, 46vh, 420px);
+    --gap: clamp(170px, 30vh, 300px);
     --measure: none;
-    /* The contact block lands around 41% of the height of the last
-       screenful, so the beam sits there — tighter than the desktop
-       wash, and thrown a little to the left of the copy. */
-    --beam-x: 42%;
+    /* The contact block comes to rest at 45% of the height, so the
+       light sits there. A real circle, not an ellipse, and grown wide
+       enough to cover the copy while the corners still fall away. */
+    --beam-x: 44%;
     --beam-y: 45%;
-    --beam-w: 80%;
-    --beam-h: 56%;
+    --beam: circle calc(64vmax * (0.62 + 0.38 * var(--open, 1)));
     --dusk: 0.32;
     --lid: 0;
-    --finish: 0.95;
+    --finish: 0;
+    --rush: 1.75;
   }
   body { font-size: 16px; }
   .intro { padding-top: calc(clamp(20px, 3.4vh, 34px) + 84px); }
