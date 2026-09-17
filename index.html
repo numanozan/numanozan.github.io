@@ -67,15 +67,16 @@
 
         <p class="field">
           <label for="reach-name" data-tr="Adınız" data-en="Your name">Adınız</label>
-          <input id="reach-name" name="name" type="text" autocomplete="name" required maxlength="120">
+          <input id="reach-name" name="name" type="text" autocomplete="name" required maxlength="80">
         </p>
         <p class="field">
           <label for="reach-mail" data-tr="E-posta adresiniz" data-en="Your email">E-posta adresiniz</label>
-          <input id="reach-mail" name="email" type="email" autocomplete="email" required maxlength="160">
+          <input id="reach-mail" name="email" type="email" autocomplete="email" required maxlength="120">
         </p>
         <p class="field">
           <label for="reach-note" data-tr="Mesajınız" data-en="Your message">Mesajınız</label>
-          <textarea id="reach-note" name="message" rows="4" required maxlength="4000"></textarea>
+          <textarea id="reach-note" name="message" rows="3" required maxlength="1000"></textarea>
+          <span class="count" aria-hidden="true"></span>
         </p>
         <p class="send">
           <button type="submit"><span data-tr="Gönder" data-en="Send">Gönder</span></button>

@@ -14,7 +14,9 @@
       buttonLabel: 'Switch to English',
       sending: 'Gönderiliyor…',
       sent: 'Mesajınız ulaştı. En kısa sürede dönüş yapacağım.',
-      failed: 'Mesaj gönderilemedi. Doğrudan <a href="mailto:numanozan80@gmail.com">e-posta</a> ile de yazabilirsiniz.'
+      failed: 'Mesaj gönderilemedi. Doğrudan <a href="mailto:numanozan80@gmail.com">e-posta</a> ile de yazabilirsiniz.',
+      tooFast: 'Formu biraz yavaş doldurup tekrar deneyin.',
+      tooSoon: 'Bir mesaj az önce gönderildi. Bir dakika sonra tekrar deneyebilirsiniz.'
     },
     en: {
       title: 'Numan Ozan',
@@ -24,7 +26,9 @@
       buttonLabel: 'Türkçe’ye geç',
       sending: 'Sending…',
       sent: 'Your message has arrived. I will get back to you soon.',
-      failed: 'The message could not be sent. You can also write to me by <a href="mailto:numanozan80@gmail.com">email</a>.'
+      failed: 'The message could not be sent. You can also write to me by <a href="mailto:numanozan80@gmail.com">email</a>.',
+      tooFast: 'Please take a moment filling the form in and try again.',
+      tooSoon: 'A message was just sent. You can try again in a minute.'
     }
   };
 
@@ -85,10 +89,40 @@
   var form = document.querySelector('.reach');
   var note = form && form.querySelector('.reach-note');
 
+  var count = form && form.querySelector('.count');
+  var message = form && form.querySelector('#reach-note');
+  var opened = Date.now();
+
+  if (count && message) {
+    var limit = parseInt(message.getAttribute('maxlength'), 10) || 1000;
+    var tally = function () {
+      var left = limit - message.value.length;
+      count.textContent = message.value.length ? left + ' / ' + limit : '';
+      count.className = left < 120 ? 'count near' : 'count';
+    };
+    message.addEventListener('input', tally);
+    tally();
+  }
+
   if (form && note && window.fetch && window.FormData) {
     form.addEventListener('submit', function (event) {
       event.preventDefault();
       var button = form.querySelector('button[type="submit"]');
+
+      /* Two guards a reader never notices: nothing filled in and sent
+         inside three seconds is a machine, and one message a minute is
+         enough for a person. Neither stops a determined attacker — the
+         service's own filtering does that. */
+      if (Date.now() - opened < 3000) {
+        note.innerHTML = COPY[current].tooFast;
+        return;
+      }
+      var last = 0;
+      try { last = parseInt(localStorage.getItem('sent') || '0', 10); } catch (error) { last = 0; }
+      if (Date.now() - last < 60000) {
+        note.innerHTML = COPY[current].tooSoon;
+        return;
+      }
       note.innerHTML = COPY[current].sending;
       if (button) { button.disabled = true; }
 
@@ -102,6 +136,8 @@
       }).then(function () {
         note.innerHTML = COPY[current].sent;
         form.reset();
+        if (count) { count.textContent = ''; }
+        try { localStorage.setItem('sent', String(Date.now())); } catch (error) { /* ignore */ }
       }).catch(function () {
         note.innerHTML = COPY[current].failed;
       }).then(function () {
@@ -119,7 +155,6 @@
   var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
   var from = 0;
   var to = 1;
-  var home = 0.42;
 
   function measure() {
     /* The dissolve runs across the whole page: it starts with the first
@@ -133,13 +168,8 @@
        spent reading it in full light. */
     to = limit;
     if (heading) {
-      var arrives = heading.getBoundingClientRect().top + window.pageYOffset - vh * 0.62;
+      var arrives = heading.getBoundingClientRect().top + window.pageYOffset - vh * 0.80;
       to = Math.min(limit, Math.max(arrives, limit * 0.45));
-    }
-    if (surface) {
-      surface.style.removeProperty('--beam-y');
-      var set = getComputedStyle(surface).getPropertyValue('--beam-y').trim();
-      home = parseFloat(set) / 100 || 0.42;
     }
   }
 
@@ -160,21 +190,56 @@
       surface.style.setProperty('--field', String(1 - eased));
       surface.style.setProperty('--spot', String(Math.min(1, eased * 1.3)));
       surface.style.setProperty('--open', String(eased));
-      if (heading && links) {
-        var block = (heading.getBoundingClientRect().top + links.getBoundingClientRect().bottom) / 2 / vh;
-        /* eased in over the second half of the scroll, so the early and
-           middle of the dissolve look exactly as they did before */
-        var follow = Math.min(Math.max((p - 0.4) / 0.3, 0), 1);
-        var beamY = home + (block - home) * follow * follow * (3 - 2 * follow);
-        beamY = Math.min(Math.max(beamY, 0.3), 1.02);
-        surface.style.setProperty('--beam-y', (beamY * 100).toFixed(1) + '%');
-      }
     }
     if (cue) {
       var span = vh * 0.4;
       var gone = span > 0 ? Math.min(Math.max(y / span, 0), 1) : 0;
       cue.style.setProperty('--cue-opacity', String(1 - gone));
     }
+  }
+
+  /* The cue glides down instead of jumping. It is a click, not the
+     page taking the scroll over: the reader's own wheel, touch or key
+     cancels it at once, and with motion reduced it lands immediately. */
+  if (cue && heading) {
+    cue.addEventListener('click', function (event) {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.button) { return; }
+      event.preventDefault();
+
+      var margin = parseFloat(getComputedStyle(heading).scrollMarginTop) || 0;
+      var limit = document.documentElement.scrollHeight - window.innerHeight;
+      var target = Math.min(limit, Math.max(0, heading.getBoundingClientRect().top + window.pageYOffset - margin));
+      var start = window.pageYOffset;
+      var span = target - start;
+
+      if (history.pushState) { history.pushState(null, '', '#contact'); }
+
+      if ((reduced && reduced.matches) || Math.abs(span) < 8) {
+        window.scrollTo(0, target);
+        return;
+      }
+
+      var began = 0;
+      var stop = false;
+      var halt = function () { stop = true; };
+      var events = ['wheel', 'touchstart', 'keydown', 'mousedown'];
+      for (var i = 0; i < events.length; i++) {
+        window.addEventListener(events[i], halt, { passive: true });
+      }
+      var release = function () {
+        for (var j = 0; j < events.length; j++) { window.removeEventListener(events[j], halt); }
+      };
+
+      var glide = function (now) {
+        if (!began) { began = now; }
+        var through = Math.min((now - began) / 1100, 1);
+        if (stop) { release(); return; }
+        var softened = 1 - Math.pow(1 - through, 3);
+        window.scrollTo(0, Math.round(start + span * softened));
+        if (through < 1) { window.requestAnimationFrame(glide); } else { release(); }
+      };
+      window.requestAnimationFrame(glide);
+    });
   }
 
   var pending = false;

@@ -9,20 +9,22 @@
   --ink: #26282a;          /* the dark tone in flat use */
   --paper-edge: #c9c9c7;   /* the surface the light falls on */
   --beam-x: 30%;           /* where the light is thrown from */
-  --beam-y: 44%;
+  --beam-y: 45%;           /* exactly where the contact block comes to rest */
   --beam-w: 46%;           /* a wide beam, roughly half the screen */
   --beam-h: 50%;
   --dusk: 0.34;            /* how far the far side falls away */
+  --lid: 0.38;             /* a band along the top, where copy leaves */
+  --finish: 0.62;          /* how early the dissolve settles, in screens */
   --paper-spot: #f6f5f3;   /* where the light falls */
   --paper: #d8d8d6;
-  --on-ink: #ececea;
-  --on-ink-muted: #e6e6e5;
+  --on-ink: #f4f4f3;
+  --on-ink-muted: #eeeeed;
   --on-paper: #1e2022;
   --on-paper-muted: #23262a;
   --line: rgba(30, 32, 34, 0.26);
 
   --gutter: clamp(22px, 6vw, 120px);
-  --gap: clamp(340px, 82vh, 880px);  /* quiet stretch between the two blocks */
+  --gap: clamp(300px, 78vh, 780px);  /* quiet stretch between the two blocks */
   --measure: 40ch;
 }
 
@@ -100,7 +102,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
     /* extra weight along the top edge: invisible while the field is
        dark, but it keeps the top of the screen down through the middle
        of the dissolve, where the intro copy leaves */
-    linear-gradient(to bottom, rgba(18, 20, 22, 0.85) 0%, rgba(18, 20, 22, 0) 44%),
+    linear-gradient(to bottom, rgba(18, 20, 22, 1.0) 0%, rgba(18, 20, 22, 0) 56%),
     radial-gradient(112% 92% at 50% 50%,
       var(--ink-core) 0%, #232527 44%, var(--ink-edge) 100%);
   opacity: var(--field, 1);
@@ -122,6 +124,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
       rgba(246, 245, 243, 0.30) 70%,
       rgba(246, 245, 243, 0.10) 86%,
       rgba(246, 245, 243, 0) 100%),
+    linear-gradient(to bottom,
+      rgba(24, 26, 28, var(--lid, 0)) 0%,
+      rgba(24, 26, 28, calc(var(--lid, 0) * 0.37)) 16%,
+      rgba(24, 26, 28, 0) 30%),
     linear-gradient(104deg,
       rgba(24, 26, 28, 0) 26%,
       rgba(24, 26, 28, calc(var(--dusk) * 0.72)) 68%,
@@ -261,7 +267,7 @@ main:focus { outline: none; }
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  padding: clamp(26px, 5vh, 58px) var(--gutter) clamp(34px, 6vh, 64px);
+  padding: clamp(30px, 10vh, 120px) var(--gutter) clamp(26px, 3.4vh, 46px);
   color: var(--on-paper);
 }
 
@@ -289,20 +295,20 @@ main:focus { outline: none; }
    than a panel sitting on top of it. */
 
 .reach {
-  margin: clamp(28px, 5vh, 46px) 0 0;
+  margin: clamp(22px, 3.2vh, 30px) 0 0;
   width: min(100%, 420px);
 }
 
 .botcheck { position: absolute; left: -9999px; opacity: 0; }
 
-.field { margin: 0 0 clamp(16px, 2.4vh, 22px); }
+.field { margin: 0 0 clamp(13px, 1.8vh, 16px); }
 
 .field label {
   display: block;
   margin-bottom: 7px;
   font-size: 13px;
   letter-spacing: 0.03em;
-  color: var(--on-paper-muted);
+  color: var(--on-paper);
 }
 
 .field input,
@@ -334,7 +340,7 @@ main:focus { outline: none; }
   outline-offset: 4px;
 }
 
-.send { margin: clamp(22px, 3.4vh, 32px) 0 0; }
+.send { margin: clamp(18px, 2.4vh, 22px) 0 0; }
 .send button {
   min-height: 44px;
   padding: 11px 26px;
@@ -349,6 +355,17 @@ main:focus { outline: none; }
 .send button:hover { border-color: var(--on-paper); background: rgba(30, 32, 34, 0.06); }
 .send button[disabled] { opacity: 0.55; cursor: default; }
 
+.count {
+  display: block;
+  margin: 8px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  text-align: right;
+  color: var(--on-paper-muted);
+}
+.count.near { color: var(--on-paper); }
+.count:empty { display: none; }
+
 .reach-note {
   margin: 18px 0 0;
   max-width: 44ch;
@@ -360,7 +377,7 @@ main:focus { outline: none; }
 
 .links {
   list-style: none;
-  margin: clamp(34px, 8vh, 76px) 0 clamp(44px, 9vh, 104px);
+  margin: clamp(26px, 3.6vh, 34px) 0 clamp(26px, 3.6vh, 36px);
   padding: 0;
   display: flex;
   flex-wrap: wrap;
@@ -391,16 +408,18 @@ main:focus { outline: none; }
   :root {
     /* A shorter quiet stretch, so a swipe carries more of the dissolve
        and the change is felt rather than guessed at. */
-    --gap: clamp(280px, 70vh, 660px);
+    --gap: clamp(220px, 46vh, 420px);
     --measure: none;
     /* The contact block lands around 41% of the height of the last
        screenful, so the beam sits there — tighter than the desktop
        wash, and thrown a little to the left of the copy. */
     --beam-x: 42%;
-    --beam-y: 44%;   /* script.js keeps this on the contact block */
+    --beam-y: 45%;
     --beam-w: 80%;
-    --beam-h: 38%;
+    --beam-h: 56%;
     --dusk: 0.32;
+    --lid: 0;
+    --finish: 0.95;
   }
   body { font-size: 16px; }
   .intro { padding-top: calc(clamp(20px, 3.4vh, 34px) + 84px); }
