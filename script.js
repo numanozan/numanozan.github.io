@@ -8,14 +8,14 @@
   var COPY = {
     tr: {
       title: 'Numan Ozan',
-      description: 'Numan Ozan — İşlerin nasıl yürüdüğünü anlamak, daha iyi yollarını bulmak. Endüstri mühendisliği, veri analizi ve yazılım.',
+      description: 'Numan Ozan — İşi anlamak, iyileştirmeyi doğru yerden başlatmak. Veri analizi, yazılım ve otomasyonla işletmelere uyarlanan çözümler.',
       button: 'English',
       buttonLang: 'en',
       buttonLabel: 'Switch to English'
     },
     en: {
       title: 'Numan Ozan',
-      description: 'Numan Ozan — Understanding how things work, and finding better ways. Industrial engineering, data analysis and software.',
+      description: 'Numan Ozan — Understanding the work, starting improvement in the right place. Solutions fitted to a business with data analysis, software and automation.',
       button: 'Türkçe',
       buttonLang: 'tr',
       buttonLabel: 'Türkçe’ye geç'
