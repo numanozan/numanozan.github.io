@@ -183,11 +183,13 @@
     var y = window.pageYOffset;
     var p = to > from ? (y - from) / (to - from) : (y > from ? 1 : 0);
     p = Math.min(Math.max(p, 0), 1);
-    /* Mostly gentle, steepest through the middle where the screen is
-       empty, so copy is never read against a half-lit surface — but it
-       still moves from the very first pixel of scroll. */
+    /* --curve picks the shape: 1 eases the middle, where a wide screen
+       has no copy to read, and 0 is a straight line from top to bottom. */
+    var shape = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--curve'));
+    if (isNaN(shape)) { shape = 1; }
     var smoother = p * p * p * (p * (6 * p - 15) + 10);
-    var eased = 0.28 * p + 0.72 * smoother;
+    var curved = 0.28 * p + 0.72 * smoother;
+    var eased = p + (curved - p) * shape;
     if (surface) {
       /* the spot arrives a little ahead of the field leaving, so the
          centre is already lit while the corners are still low */
