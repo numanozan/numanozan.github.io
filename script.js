@@ -108,8 +108,10 @@
     p = Math.min(Math.max(p, 0), 1);
     var eased = p * p * (3 - 2 * p);
     if (surface) {
+      /* the spot arrives a little ahead of the field leaving, so the
+         centre is already lit while the corners are still low */
       surface.style.setProperty('--field', String(1 - eased));
-      surface.style.setProperty('--core', String(Math.max(0, 1 - eased * 1.7)));
+      surface.style.setProperty('--spot', String(Math.min(1, eased * 1.35)));
     }
     if (cue) {
       var span = vh * 0.4;

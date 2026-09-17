@@ -1,17 +1,20 @@
 /* Numan Ozan — single continuous surface, dark intro into light contact */
 
 :root {
-  /* One warm stone family, read at two levels of light rather than as
-     black against white: the dark field and the lit one share the same
-     hue, and the text on each is the other's tone.                    */
-  --ink: #2b2723;          /* warm dark stone */
-  --ink-lift: #38322b;     /* faint lift toward the centre of the dark field */
-  --paper: #ddd7c9;        /* warm sand, well short of white */
-  --on-ink: #ece6da;
-  --on-ink-muted: #cbc3b4;
-  --on-paper: #2b2723;
-  --on-paper-muted: #4a4339;
-  --line: rgba(43, 39, 35, 0.22);
+  /* One neutral grey family, read at two levels of light: the dark half
+     is lit from its edges inward, the lit half from a soft spot a little
+     off centre, and each half's text is the other half's tone.        */
+  --ink-core: #1e1f20;     /* centre of the dark field */
+  --ink-edge: #323436;     /* its edges, just perceptibly lighter */
+  --ink: #26282a;          /* the dark tone in flat use */
+  --paper-edge: #cdcdcb;   /* edges of the lit half, slightly faded */
+  --paper-spot: #f4f3f1;   /* where the light falls */
+  --paper: #e4e4e2;
+  --on-ink: #ececea;
+  --on-ink-muted: #c2c3c2;
+  --on-paper: #232426;
+  --on-paper-muted: #45474a;
+  --line: rgba(35, 36, 38, 0.22);
 
   --gutter: clamp(22px, 6vw, 120px);
   --gap: clamp(300px, 56vh, 620px);  /* quiet stretch between the two blocks */
@@ -63,17 +66,20 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .skip:focus { top: 14px; }
 
 /* ---------- the surface ---------------------------------------------- */
-/* One layer, fixed to the viewport, so its centre stays in the centre of
-   the screen while the content scrolls past it normally. script.js maps
-   the scroll position straight onto --field and --core; nothing here
-   animates on its own, and there is no edge or band to travel upward.  */
+/* One layer, fixed to the viewport, so the light stays where the screen
+   is rather than where the page is. script.js maps the scroll position
+   straight onto two opacities: the dark field, which opens from its
+   centre outward, fades away while a soft spot of light a little off
+   centre fades in. Mid-way the centre is already lit while the corners
+   are still low, which is the crossing of the two. Nothing animates on
+   its own and no edge or band travels across the screen.              */
 
 .surface {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: var(--paper);
+  background: var(--paper-edge);
 }
 
 .surface::before,
@@ -83,26 +89,30 @@ button { font: inherit; color: inherit; cursor: pointer; }
   inset: 0;
 }
 
-/* the dark field: centre darkest, edges only just lighter */
+/* the dark field: centre deepest, opening outward to lighter edges */
 .surface::before {
-  background: radial-gradient(118% 96% at 50% 50%, #241f1b 0%, #2b2723 46%, #37312a 100%);
+  background: radial-gradient(112% 92% at 50% 50%,
+    var(--ink-core) 0%, #232527 44%, var(--ink-edge) 100%);
   opacity: var(--field, 1);
 }
 
-/* the extra weight in the middle, which dissolves first so the centre
-   merges into its surroundings before the whole surface lifts */
+/* the light, thrown slightly across the screen toward the contact copy */
 .surface::after {
-  background: radial-gradient(60% 50% at 50% 48%, rgba(17, 14, 12, 0.44) 0%, rgba(17, 14, 12, 0) 78%);
-  opacity: var(--core, 1);
+  background:
+    radial-gradient(96% 82% at 37% 40%,
+      var(--paper-spot) 0%, rgba(244, 243, 241, 0.62) 44%, rgba(244, 243, 241, 0) 84%);
+  opacity: var(--spot, 0);
 }
 
 /* Without scripting the surface cannot follow the scroll, so the intro
    carries the dark field itself and the contact half stays on paper. */
 html:not(.js) .surface { display: none; }
+html:not(.js) body { background: var(--paper-edge); }
 html:not(.js) .intro {
-  background: radial-gradient(118% 96% at 50% 50%, #241f1b 0%, #2b2723 46%, #37312a 100%);
+  margin-bottom: 0;
+  background: radial-gradient(112% 92% at 50% 50%,
+    var(--ink-core) 0%, #232527 44%, var(--ink-edge) 100%);
 }
-html:not(.js) .intro { margin-bottom: 0; }
 
 /* ---------- identity row --------------------------------------------- */
 
@@ -134,7 +144,7 @@ html:not(.js) .intro { margin-bottom: 0; }
   display: inline-flex;
   align-items: center;
   background: none;
-  border: 1px solid rgba(236, 230, 218, 0.30);
+  border: 1px solid rgba(236, 236, 234, 0.30);
   border-radius: 999px;
   padding: 7px 15px;
   font-size: 13px;
@@ -142,7 +152,7 @@ html:not(.js) .intro { margin-bottom: 0; }
   color: var(--on-ink-muted);
   transition: border-color 0.2s ease, color 0.2s ease;
 }
-#language:hover { border-color: rgba(236, 230, 218, 0.62); color: var(--on-ink); }
+#language:hover { border-color: rgba(236, 236, 234, 0.66); color: var(--on-ink); }
 
 /* ---------- intro ----------------------------------------------------- */
 
@@ -209,7 +219,7 @@ main:focus { outline: none; }
   transition: transform 0.25s ease, color 0.25s ease;
 }
 .cue:hover .cue-arrow { transform: translateY(3px); color: var(--on-ink); }
-.cue span:last-child { border-bottom: 1px solid rgba(236, 230, 218, 0.42); padding-bottom: 3px; }
+.cue span:last-child { border-bottom: 1px solid rgba(236, 236, 234, 0.42); padding-bottom: 3px; }
 .cue:hover span:last-child { border-bottom-color: var(--on-ink); }
 
 /* ---------- contact --------------------------------------------------- */
@@ -260,7 +270,7 @@ main:focus { outline: none; }
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 5px;
-  text-decoration-color: rgba(43, 39, 35, 0.34);
+  text-decoration-color: rgba(35, 36, 38, 0.34);
   overflow-wrap: break-word;
   transition: text-decoration-color 0.2s ease;
 }
@@ -279,7 +289,7 @@ main:focus { outline: none; }
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 5px;
-  text-decoration-color: rgba(43, 39, 35, 0.32);
+  text-decoration-color: rgba(35, 36, 38, 0.32);
   color: var(--on-paper-muted);
   transition: color 0.2s ease, text-decoration-color 0.2s ease;
 }
