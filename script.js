@@ -112,6 +112,7 @@
          centre is already lit while the corners are still low */
       surface.style.setProperty('--field', String(1 - eased));
       surface.style.setProperty('--spot', String(Math.min(1, eased * 1.35)));
+      surface.style.setProperty('--open', String(eased));
     }
     if (cue) {
       var span = vh * 0.4;
