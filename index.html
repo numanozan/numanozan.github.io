@@ -57,8 +57,33 @@
     <section class="contact" aria-labelledby="contact">
       <h2 id="contact" data-tr="İletişim" data-en="Contact">İletişim</h2>
       <p class="contact-lead" data-tr="İş fırsatları ve işletmenizde ele almak istediğiniz problemler için bana ulaşabilirsiniz." data-en="You can reach me about job opportunities and problems you would like to address in your business.">İş fırsatları ve işletmenizde ele almak istediğiniz problemler için bana ulaşabilirsiniz.</p>
-      <p class="email"><a href="mailto:numanozan80@gmail.com">numanozan80@gmail.com</a></p>
+      <form class="reach" action="https://api.web3forms.com/submit" method="POST">
+        <!-- Web3Forms access key: numanozan80@gmail.com adresiyle
+             web3forms.com'dan alınan anahtar buraya gelir. -->
+        <input type="hidden" name="access_key" value="WEB3FORMS-ACCESS-KEY">
+        <input type="hidden" name="subject" value="numanozan.pages.dev — yeni mesaj">
+        <input type="hidden" name="from_name" value="numanozan.pages.dev">
+        <input type="checkbox" name="botcheck" class="botcheck" tabindex="-1" aria-hidden="true">
+
+        <p class="field">
+          <label for="reach-name" data-tr="Adınız" data-en="Your name">Adınız</label>
+          <input id="reach-name" name="name" type="text" autocomplete="name" required maxlength="120">
+        </p>
+        <p class="field">
+          <label for="reach-mail" data-tr="E-posta adresiniz" data-en="Your email">E-posta adresiniz</label>
+          <input id="reach-mail" name="email" type="email" autocomplete="email" required maxlength="160">
+        </p>
+        <p class="field">
+          <label for="reach-note" data-tr="Mesajınız" data-en="Your message">Mesajınız</label>
+          <textarea id="reach-note" name="message" rows="4" required maxlength="4000"></textarea>
+        </p>
+        <p class="send">
+          <button type="submit"><span data-tr="Gönder" data-en="Send">Gönder</span></button>
+        </p>
+        <p class="reach-note" role="status" aria-live="polite"></p>
+      </form>
       <ul class="links">
+        <li><a href="mailto:numanozan80@gmail.com" data-tr="E-posta" data-en="Email">E-posta</a></li>
         <li><a href="https://www.linkedin.com/in/numan-ozan" target="_blank" rel="noopener">LinkedIn</a></li>
         <li><a href="https://github.com/numanozan" target="_blank" rel="noopener">GitHub</a></li>
         <li><a href="Numan_Ozan_CV_TR.pdf" target="_blank" rel="noopener" lang="tr">CV · Türkçe</a></li>
