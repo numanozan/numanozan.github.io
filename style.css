@@ -16,13 +16,13 @@
   --paper-spot: #f6f5f3;   /* where the light falls */
   --paper: #d8d8d6;
   --on-ink: #ececea;
-  --on-ink-muted: #c2c3c2;
+  --on-ink-muted: #d9d9d8;
   --on-paper: #1e2022;
-  --on-paper-muted: #303336;
+  --on-paper-muted: #23262a;
   --line: rgba(30, 32, 34, 0.26);
 
   --gutter: clamp(22px, 6vw, 120px);
-  --gap: clamp(300px, 56vh, 620px);  /* quiet stretch between the two blocks */
+  --gap: clamp(340px, 82vh, 880px);  /* quiet stretch between the two blocks */
   --measure: 40ch;
 }
 
@@ -112,9 +112,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
                     calc(var(--beam-h) * (0.55 + 0.45 * var(--open, 1)))
                     at var(--beam-x) var(--beam-y),
       var(--paper-spot) 0%,
-      rgba(246, 245, 243, 0.82) 32%,
-      rgba(246, 245, 243, 0.46) 60%,
-      rgba(246, 245, 243, 0.14) 84%,
+      rgba(246, 245, 243, 0.88) 24%,
+      rgba(246, 245, 243, 0.60) 48%,
+      rgba(246, 245, 243, 0.30) 70%,
+      rgba(246, 245, 243, 0.10) 86%,
       rgba(246, 245, 243, 0) 100%),
     linear-gradient(104deg,
       rgba(24, 26, 28, 0) 26%,
@@ -328,7 +329,7 @@ main:focus { outline: none; }
 
 @media (max-width: 620px) {
   :root {
-    --gap: clamp(280px, 72vh, 660px);
+    --gap: clamp(320px, 88vh, 820px);
     --measure: none;
     --beam-x: 50%;
     --beam-y: 40%;

@@ -77,27 +77,10 @@
   var to = 1;
 
   function measure() {
-    var vh = window.innerHeight;
-    var offset = window.pageYOffset;
-    var copy = document.querySelectorAll('.intro-text p');
-    var quietStart = 0;
-    for (var i = 0; i < copy.length; i++) {
-      quietStart = Math.max(quietStart, copy[i].getBoundingClientRect().bottom + offset);
-    }
-    var heading = document.querySelector('.contact h2');
-    var quietEnd = heading ? heading.getBoundingClientRect().top + offset - vh : quietStart + vh;
-    /* Light copy stays comfortable until the surface is about a fifth of
-       the way up, and dark copy from a little under halfway, so the ramp
-       only has to keep its middle third clear of either block. */
-    var window_ = quietEnd - quietStart;
-    var span = Math.max(window_ / 0.36, vh * 0.3);
-    var limit = document.documentElement.scrollHeight - vh;
-    from = quietStart - span * 0.22;
-    to = from + span;
-    if (to > limit) {
-      to = limit;
-      from = Math.max(0, limit - span);
-    }
+    /* The dissolve runs across the whole page: it starts with the first
+       pixel of scroll and finishes at the very bottom. */
+    from = 0;
+    to = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
   }
 
   function paint() {
@@ -106,12 +89,16 @@
     var y = window.pageYOffset;
     var p = to > from ? (y - from) / (to - from) : (y > from ? 1 : 0);
     p = Math.min(Math.max(p, 0), 1);
-    var eased = p * p * (3 - 2 * p);
+    /* Mostly gentle, steepest through the middle where the screen is
+       empty, so copy is never read against a half-lit surface — but it
+       still moves from the very first pixel of scroll. */
+    var smoother = p * p * p * (p * (6 * p - 15) + 10);
+    var eased = 0.28 * p + 0.72 * smoother;
     if (surface) {
       /* the spot arrives a little ahead of the field leaving, so the
          centre is already lit while the corners are still low */
       surface.style.setProperty('--field', String(1 - eased));
-      surface.style.setProperty('--spot', String(Math.min(1, eased * 1.35)));
+      surface.style.setProperty('--spot', String(Math.min(1, eased * 1.18)));
       surface.style.setProperty('--open', String(eased));
     }
     if (cue) {
