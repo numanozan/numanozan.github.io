@@ -8,14 +8,13 @@
   --ink-lift: #38322b;     /* faint lift toward the centre of the dark field */
   --paper: #ddd7c9;        /* warm sand, well short of white */
   --on-ink: #ece6da;
-  --on-ink-muted: #b6ae9f;
+  --on-ink-muted: #cbc3b4;
   --on-paper: #2b2723;
-  --on-paper-muted: #5a5245;
+  --on-paper-muted: #4a4339;
   --line: rgba(43, 39, 35, 0.22);
 
   --gutter: clamp(22px, 6vw, 120px);
-  --gap: 25vh;             /* quiet space between the two sections */
-  --fade: 34vh;            /* height of the dark-to-light dissolve */
+  --gap: clamp(300px, 56vh, 620px);  /* quiet stretch between the two blocks */
   --measure: 40ch;
 }
 
@@ -64,35 +63,46 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .skip:focus { top: 14px; }
 
 /* ---------- the surface ---------------------------------------------- */
-/* One layer paints the dark field and dissolves into the page's own
-   broken white. It is positioned in document flow, so the whole
-   transition is driven by nothing but the real scroll position.        */
+/* One layer, fixed to the viewport, so its centre stays in the centre of
+   the screen while the content scrolls past it normally. script.js maps
+   the scroll position straight onto --field and --core; nothing here
+   animates on its own, and there is no edge or band to travel upward.  */
 
 .surface {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: calc(-1 * var(--gap));
-  z-index: -1;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
   pointer-events: none;
-  background:
-    radial-gradient(135% 30% at 50% 100%, rgba(221, 215, 201, 0.34) 0%, rgba(221, 215, 201, 0) 72%),
-    radial-gradient(95% 62% at 50% 30%, var(--ink-lift) 0%, var(--ink) 66%),
-    var(--ink);
-  -webkit-mask-image: linear-gradient(to top,
-    rgba(0, 0, 0, 0) 0,
-    rgba(0, 0, 0, 0.18) calc(var(--fade) * 0.22),
-    rgba(0, 0, 0, 0.60) calc(var(--fade) * 0.50),
-    rgba(0, 0, 0, 0.92) calc(var(--fade) * 0.78),
-    rgba(0, 0, 0, 1) var(--fade));
-  mask-image: linear-gradient(to top,
-    rgba(0, 0, 0, 0) 0,
-    rgba(0, 0, 0, 0.18) calc(var(--fade) * 0.22),
-    rgba(0, 0, 0, 0.60) calc(var(--fade) * 0.50),
-    rgba(0, 0, 0, 0.92) calc(var(--fade) * 0.78),
-    rgba(0, 0, 0, 1) var(--fade));
+  background: var(--paper);
 }
+
+.surface::before,
+.surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+/* the dark field: centre darkest, edges only just lighter */
+.surface::before {
+  background: radial-gradient(118% 96% at 50% 50%, #241f1b 0%, #2b2723 46%, #37312a 100%);
+  opacity: var(--field, 1);
+}
+
+/* the extra weight in the middle, which dissolves first so the centre
+   merges into its surroundings before the whole surface lifts */
+.surface::after {
+  background: radial-gradient(60% 50% at 50% 48%, rgba(17, 14, 12, 0.44) 0%, rgba(17, 14, 12, 0) 78%);
+  opacity: var(--core, 1);
+}
+
+/* Without scripting the surface cannot follow the scroll, so the intro
+   carries the dark field itself and the contact half stays on paper. */
+html:not(.js) .surface { display: none; }
+html:not(.js) .intro {
+  background: radial-gradient(118% 96% at 50% 50%, #241f1b 0%, #2b2723 46%, #37312a 100%);
+}
+html:not(.js) .intro { margin-bottom: 0; }
 
 /* ---------- identity row --------------------------------------------- */
 
@@ -136,7 +146,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 /* ---------- intro ----------------------------------------------------- */
 
-main { display: block; }
+main { display: block; position: relative; z-index: 1; }
 main:focus { outline: none; }
 
 .intro {
@@ -238,15 +248,18 @@ main:focus { outline: none; }
 }
 
 .email {
-  margin: clamp(34px, 8vh, 78px) 0 0;
-  font-size: clamp(22px, 3.2vw, 46px);
-  line-height: 1.25;
-  letter-spacing: -0.015em;
+  margin: clamp(26px, 5vh, 44px) 0 0;
+  font-size: clamp(17px, 1.6vw, 21px);
+  line-height: 1.45;
+  letter-spacing: -0.005em;
 }
 .email a {
+  display: inline-block;
+  padding: 11px 0;            /* keeps a comfortable touch target */
+  font-weight: 500;
   text-decoration: underline;
   text-decoration-thickness: 1px;
-  text-underline-offset: 7px;
+  text-underline-offset: 5px;
   text-decoration-color: rgba(43, 39, 35, 0.34);
   overflow-wrap: break-word;
   transition: text-decoration-color 0.2s ease;
@@ -283,17 +296,18 @@ main:focus { outline: none; }
 /* ---------- narrow screens -------------------------------------------- */
 
 @media (max-width: 620px) {
-  :root { --gap: 22vh; --fade: 30vh; --measure: none; }
+  :root { --gap: clamp(280px, 72vh, 660px); --measure: none; }
   body { font-size: 16px; }
   .intro { padding-top: calc(clamp(20px, 3.4vh, 34px) + 84px); }
   .intro h1 { max-width: none; font-size: clamp(27px, 7.2vw, 38px); }
   /* the composed line break belongs to wide screens; let narrow ones wrap */
   .intro h1 br { display: none; }
-  .email { font-size: clamp(19px, 6.2vw, 30px); }
+  .email { font-size: 17px; }
   .links { gap: 12px 22px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* nothing eases or animates; the surface and the cue still follow the
+     scroll position, because that is what keeps the text legible */
   * { transition: none !important; animation: none !important; }
-  .cue { opacity: 1 !important; }
 }

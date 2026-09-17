@@ -64,30 +64,74 @@
 
   if (restore() === 'en') { setLanguage('en'); }
 
-  /* The scroll cue steps back once the reader has started scrolling.
-     Position based, reversible, and skipped when motion is reduced. */
+  /* The surface follows the scroll position and nothing else. The
+     dissolve is scheduled for the quiet stretch between the two blocks
+     of copy: it starts once the intro copy has left the top edge and is
+     finished by the time the contact heading reaches the bottom edge, so
+     no text is ever read against a half-lit surface. Scrolling back up
+     runs the same mapping in reverse. */
+  var surface = document.querySelector('.surface');
   var cue = document.querySelector('.cue');
   var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+  var from = 0;
+  var to = 1;
 
-  if (cue && !(reduced && reduced.matches)) {
-    var pending = false;
+  function measure() {
+    var vh = window.innerHeight;
+    var offset = window.pageYOffset;
+    var copy = document.querySelectorAll('.intro-text p');
+    var quietStart = 0;
+    for (var i = 0; i < copy.length; i++) {
+      quietStart = Math.max(quietStart, copy[i].getBoundingClientRect().bottom + offset);
+    }
+    var heading = document.querySelector('.contact h2');
+    var quietEnd = heading ? heading.getBoundingClientRect().top + offset - vh : quietStart + vh;
+    /* Light copy stays comfortable until the surface is about a fifth of
+       the way up, and dark copy from a little under halfway, so the ramp
+       only has to keep its middle third clear of either block. */
+    var window_ = quietEnd - quietStart;
+    var span = Math.max(window_ / 0.36, vh * 0.3);
+    var limit = document.documentElement.scrollHeight - vh;
+    from = quietStart - span * 0.22;
+    to = from + span;
+    if (to > limit) {
+      to = limit;
+      from = Math.max(0, limit - span);
+    }
+  }
 
-    var update = function () {
-      pending = false;
-      var span = window.innerHeight * 0.4;
-      var progress = span > 0 ? Math.min(Math.max(window.pageYOffset / span, 0), 1) : 0;
-      cue.style.setProperty('--cue-opacity', String(1 - progress));
-    };
+  function paint() {
+    pending = false;
+    var vh = window.innerHeight;
+    var y = window.pageYOffset;
+    var p = to > from ? (y - from) / (to - from) : (y > from ? 1 : 0);
+    p = Math.min(Math.max(p, 0), 1);
+    var eased = p * p * (3 - 2 * p);
+    if (surface) {
+      surface.style.setProperty('--field', String(1 - eased));
+      surface.style.setProperty('--core', String(Math.max(0, 1 - eased * 1.7)));
+    }
+    if (cue) {
+      var span = vh * 0.4;
+      var gone = span > 0 ? Math.min(Math.max(y / span, 0), 1) : 0;
+      cue.style.setProperty('--cue-opacity', String(1 - gone));
+    }
+  }
 
-    var onScroll = function () {
-      if (!pending) {
-        pending = true;
-        window.requestAnimationFrame(update);
-      }
-    };
+  var pending = false;
+  function request() {
+    if (!pending) {
+      pending = true;
+      window.requestAnimationFrame(paint);
+    }
+  }
 
-    update();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
+  measure();
+  paint();
+  window.addEventListener('scroll', request, { passive: true });
+  window.addEventListener('resize', function () { measure(); request(); });
+  window.addEventListener('load', function () { measure(); paint(); });
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () { measure(); paint(); });
   }
 })();
