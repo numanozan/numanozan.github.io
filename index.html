@@ -10,15 +10,18 @@
   <meta property="og:title" content="Numan Ozan">
   <meta property="og:description" content="İşi anlamak. İyileştirmeyi doğru yerden başlatmak.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://numanozan.pages.dev/">
-  <link rel="canonical" href="https://numanozan.pages.dev/">
+  <meta property="og:url" content="https://numanozan.com/">
+  <link rel="canonical" href="https://numanozan.com/">
   <script>
-    /* numanozan.github.io is kept alive only to forward visitors to the
-       current address. The same file is served from both hosts, so the
-       hostname check is what stops this from looping on pages.dev. */
-    if (location.hostname === 'numanozan.github.io') {
-      location.replace('https://numanozan.pages.dev' + location.pathname + location.search + location.hash);
-    }
+    /* One address for the site. The older ones are kept alive only to
+       forward to it, and the check is on the hostname because the very
+       same file is what they all serve. */
+    (function () {
+      var moved = ['numanozan.github.io', 'numanozan.pages.dev', 'www.numanozan.com'];
+      if (moved.indexOf(location.hostname) >= 0) {
+        location.replace('https://numanozan.com' + location.pathname + location.search + location.hash);
+      }
+    })();
   </script>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2326282a'/%3E%3Ccircle cx='16' cy='16' r='4.5' fill='%23ececea'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
